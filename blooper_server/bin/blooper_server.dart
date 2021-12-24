@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:hive/hive.dart';
-
 import 'database.dart';
+import 'page_repository_manager.dart';
 import 'utils.dart';
 
 void main(List<String> arguments) async {
@@ -12,8 +11,15 @@ void main(List<String> arguments) async {
 }
 
 Future<void> prepareResources() async {
-  print('[Loading Database]');
+  print('[Loading Page Repository]');
   var timer = Stopwatch();
+  timer.start();
+  await PageRepositoryManager.init('page_repo');
+  timer.stop();
+  print('[Finished Loading Page Repository]: ${timer.elapsed}');
+
+  print('[Loading Database]');
+  timer.reset();
   timer.start();
   await CustomDatabaseManager.init('hive_database', 41);
   timer.stop();
@@ -23,7 +29,8 @@ Future<void> prepareResources() async {
 void startServer() {
   HttpServer.bind('localhost', 3000).then((server) {
     server.sessionTimeout = 10;
-    print('[Server socket started & Listening]: host=${server.address.host},port=${server.port}');
+    print(
+        '[Server socket started & Listening]: host=${server.address.host},port=${server.port}');
     server.listen((HttpRequest httpRequest) async {
       var result = await processRequest(httpRequest);
       httpRequest.response.headers.contentType = ContentType.json;
@@ -113,12 +120,26 @@ Future<List> processQuery(List terms) async {
     }
   }
   result.sort((a, b) => (docScores[b] as int).compareTo(docScores[a] as int));
-  return result
-      .map((e) => {
-            'docID': e,
-            'score': docScores[e],
-          })
-      .toList();
+  
+  //Map to pages
+  List page_results = [];
+  for (int docID in result) {
+    page_results.add(PageRepositoryManager.instance.getPageInfo(docID));
+  }
+
+  List final_result = [];
+  for (int i = 0; i < result.length; ++i) {
+    int docID = result[i];
+    final_result.add({
+      'docID': docID,
+      'score': docScores[docID],
+      'url': page_results[i]['url'],
+      'snippet': page_results[i]['snippet'],
+      // 'htmlContent': page_results[i]['htmlContent'],
+    });
+  }
+
+  return final_result;
 }
 
 int calculateScore(Map postingListItem) {
