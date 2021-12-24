@@ -49,12 +49,18 @@ Future<String> processRequest(HttpRequest httpRequest) async {
   var terms = query.split(' ');
   print(terms);
 
+  var result = await processQuery(terms);
+
+  // var termsPostingLists = []; //List<Map>
   // The first term is always a word
-  var result = await CustomDatabaseManager.instance.fetchPostingList(terms[0]);
-  if (terms.length > 1) {
-    var right = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
-    result = Utils.notOf(result, right);
-  }
+  // var result = await CustomDatabaseManager.instance.fetchPostingList(terms[0]);
+  // termsPostingLists.addAll(result);
+
+  // if (terms.length > 1) {
+  //   var right = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
+  //   termsPostingLists.addAll(right);
+  //   result = Utils.notOf(result, right);
+  // }
   // if (terms.length > 1) {
   //   var res2 = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
   // }
@@ -71,13 +77,50 @@ Future<String> processRequest(HttpRequest httpRequest) async {
   }.toString());
 }
 
-// Future<List> processQuery(
-//     List leftTermPostingList, List<String> rightTerms) async {
-//   if (rightTerms.isEmpty) return leftTermPostingList;
-//   var res =
-//       await CustomDatabaseManager.instance.fetchPostingList(rightTerms.first);
-//   return Utils.andOf(leftTermPostingList, res);
-// }
+Future<List> processQuery(List terms) async {
+  var termsPostingList = [];
+  var result =
+      await CustomDatabaseManager.instance.fetchPostingList(terms.first);
+  termsPostingList.add(result);
+  result = result.map((e) => e['docID']).toList();
+  for (int i = 1; i < terms.length; ++i) {
+    // if in operators?
+    if (terms[i] == 'AND') {
+      print('DOING AND');
+      ++i;
+      termsPostingList.add(null);
+      var second =
+          await CustomDatabaseManager.instance.fetchPostingList(terms[i]);
+      termsPostingList.add(second);
+      result = Utils.andOf(result, second.map((e) => e['docID']).toList());
+    } else if (terms[i] == 'OR') {
+      print('DOING OR');
+      ++i;
+      termsPostingList.add(null);
+      var second =
+          await CustomDatabaseManager.instance.fetchPostingList(terms[i]);
+      termsPostingList.add(second);
+      result = Utils.orOf(result, second.map((e) => e['docID']).toList());
+    } else if (terms[i] == 'NOT') {
+      print('DOING NOT');
+      ++i;
+      termsPostingList.add(null);
+      var second =
+          await CustomDatabaseManager.instance.fetchPostingList(terms[i]);
+      termsPostingList.add(second);
+      result = Utils.notOf(result, second.map((e) => e['docID']).toList());
+    } else {
+      // if not in operators
+      print('DOING ELSE');
+      print(terms[i]);
+      var second =
+          await CustomDatabaseManager.instance.fetchPostingList(terms[i]);
+      termsPostingList.add(second);
+      result = Utils.andOf(result, second.map((e) => e['docID']).toList());
+    }
+  }
+  return result;
+}
 
 void startClient() async {
   final client = HttpClient();
