@@ -9,25 +9,35 @@ import 'html_document.dart';
 import 'indexer.dart';
 
 void main(List<String> arguments) async {
-  String dbPath = './hive_database';
+  String dbPath = './hive_database_2';
   String pageRepositoryPath = './page_repo';
   String datasetPath = './dataset';
   var indexer = Indexer(dbPath);
 
-  List<HtmlDocument> htmlDocuments = await startIndexing(indexer, datasetPath);
+  // List<HtmlDocument> htmlDocuments = await startIndexing(indexer, datasetPath);
 
   //Test indexed words
-  saveWordsListAsJson();
+  // saveWordsListAsJson();
 
   // Test reading data from database
-  await testTermFetching('تهران', indexer);
-  await testTermFetching('دانشگاه', indexer);
-  await testTermFetching('ابوریحان', indexer);
-  await testTermFetching('پردیس', indexer);
-  await testTermFetching('و', indexer);
+  // print(await testTermFetching('تهران', indexer));
+  // await testTermFetching('تهران', indexer);
+  // await testTermFetching('دانشگاه', indexer);
+  // await testTermFetching('ابوریحان', indexer);
+  // await testTermFetching('پردیس', indexer);
+  // await testTermFetching('و', indexer);
+  await testTermListFetching([
+    // '000fbfc8285683ec0251fe4af0a0421a',
+    // 'تهران',
+    // 'دانشگاه',
+    // 'ابوریحان',
+    // 'پردیس',
+    'و',
+    // 'یا',
+  ], indexer);
 
   //Save pages into pages_repository
-  generatePageRepository(pageRepositoryPath, htmlDocuments);
+  // generatePageRepository(pageRepositoryPath, htmlDocuments);
 }
 
 Future<List<HtmlDocument>> startIndexing(
@@ -49,13 +59,16 @@ Future<List<HtmlDocument>> startIndexing(
     ));
   }
 
+  await indexer.saveIndexAsHive();
+  indexer.reset();
+
   // List<Future> xmlProcessFutures = [];
   // await Future.wait(xmlProcessFutures);
 
   totalIndexingTimer.stop();
   print('''[Finished indexing all files in ${totalIndexingTimer.elapsed}]:
   \tHtml Pages count: ${htmlDocuments.length}
-  \tIndexed words count: ${indexer.getWordsCount()}
+  \tIndexed words count: ${indexer.getTotalWordsCount()}
   ''');
 
   return htmlDocuments;
@@ -85,11 +98,17 @@ Future<List<HtmlDocument>> processXML(
 
     await docParser.processDoc(htmlDocuments.last);
 
+    if (indexer.getWordsCount() >= 150000) {
+      print('[Saving into Hive]');
+      await indexer.saveIndexAsHive();
+      indexer.reset();
+    }
+
     if (htmlDocuments.length % 1000 == 0) {
       print('''
         [Doc Finished at ${totalIndexingTimer!.elapsed}]:
         \t${htmlDocuments.length}-th html doc
-        \t${indexer.getWordsCount()} words indexed
+        \t${indexer.getTotalWordsCount()} words indexed
         ''');
     }
   }
@@ -136,8 +155,33 @@ void saveWordsListAsJson() async {
 Future<List> testTermFetching(String term, Indexer indexer) async {
   Stopwatch timer = Stopwatch();
   timer.start();
-  var result = await indexer.getWordIndex(term);
+  var result = await indexer.getWordIndex(term, maxFileIndice: 41);
   timer.stop();
   print('[Fetched results for $term]: ${timer.elapsed}');
   return result.toList();
+}
+
+Future<void> testTermListFetching(List<String> terms, Indexer indexer) async {
+  List<Box> boxList = [];
+  print('[Loading Hives]');
+  for (int i = 0; i <= 41; ++i) {
+    boxList.add(await Hive.openBox('hive_db_$i'));
+    // print(boxList.last.keys);
+    // exit(0);
+  }
+  print('[Hives Loaded]');
+  for (String term in terms) {
+    Stopwatch timer = Stopwatch();
+    timer.start();
+    List termResult = [];
+    String termHash = Indexer.getWordHash(term);
+    print(termHash);
+    for (var box in boxList) {
+      var items = await box.get(termHash);
+      termResult.addAll(items == null ? [] : items as List);
+    }
+    timer.stop();
+    print('[Fetched results for $term]: ${timer.elapsed}');
+    // print(termResult);
+  }
 }

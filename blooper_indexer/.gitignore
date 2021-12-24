@@ -5,6 +5,7 @@
 # Conventional directory for build output.
 build/
 hive_database/
+hive_database_2/
 dataset/
 dataset_more/
 page_repo/

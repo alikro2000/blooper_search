@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:http/http.dart';
 import 'package:html/parser.dart' as parser;
 
 import 'html_document.dart';
@@ -12,16 +11,22 @@ class DocumentProcessor {
   DocumentProcessor(this._indexer);
 
   Future<void> processDoc(HtmlDocument htmlDocument) async {
+    await _indexer.index(htmlDocument.docID, getTitle(htmlDocument), 't');
+    await _indexer.index(htmlDocument.docID, getBody(htmlDocument), 'b');
+  }
+
+  static String getTitle(HtmlDocument htmlDocument) {
+    var doc = parser.parse(htmlDocument.htmlContent);
+    return parser
+        .parse(doc.outerHtml)
+        .getElementsByTagName('title')
+        .map((e) => e.text.trim())
+        .join();
+  }
+
+  static String getBody(HtmlDocument htmlDocument) {
     var doc = parser.parse(parser.parse(htmlDocument.htmlContent).body!.text);
-    //TODO: normalize words before processing
-    for(String element in doc.getElementsByTagName('title').map((e) => e.text.trim())) {
-      // print(element);
-      await _indexer.index(htmlDocument.docID, element, 't');
-    }
-    for(String element in doc.getElementsByTagName('body').map((e) => e.text.trim())) {
-      // print(element);
-      await _indexer.index(htmlDocument.docID, element, 'b');
-    }
+    return doc.getElementsByTagName('body').map((e) => e.text.trim()).join();
   }
 
   static String getSnippet(HtmlDocument htmlDocument) {
