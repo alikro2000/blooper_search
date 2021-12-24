@@ -75,6 +75,12 @@ Future<String> processRequest(HttpRequest httpRequest) async {
     'duration': timer.elapsed,
     'postingList': result,
   }.toString());
+  // return jsonEncode({
+  //   'query': query,
+  //   'count': result.length,
+  //   'duration': timer.elapsed,
+  //   'postingList': result,
+  // }.toString());
 }
 
 Future<List> processQuery(List terms) async {
@@ -119,7 +125,37 @@ Future<List> processQuery(List terms) async {
       result = Utils.andOf(result, second.map((e) => e['docID']).toList());
     }
   }
-  return result;
+  //Rank
+  var docScores = {};
+  for (int docID in result) {
+    for (var postingList in termsPostingList) {
+      if (postingList == null) {
+        continue;
+      }
+      int score = 0;
+      var stream = (postingList as List)
+          .where((element) => element['docID'] == docID)
+          .map((e) => calculateScore(e));
+      if (stream.isNotEmpty) {
+        score = stream.reduce((a, b) => a + b);
+      }
+      docScores.update(docID, (value) => value + score, ifAbsent: () => score);
+    }
+  }
+  result.sort((a, b) => (docScores[b] as int).compareTo(docScores[a] as int));
+  return result
+      .map((e) => {
+            'docID': e,
+            'score': docScores[e],
+          })
+      .toList();
+
+  // return result;
+}
+
+int calculateScore(Map postingListItem) {
+  return (postingListItem['type'] == 't' ? 5 : 1) *
+      (postingListItem['freq'] as int);
 }
 
 void startClient() async {
