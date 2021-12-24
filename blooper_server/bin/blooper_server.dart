@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 
 import 'database.dart';
+import 'utils.dart';
 
 void main(List<String> arguments) async {
   await prepareResources();
@@ -41,21 +42,46 @@ void startServer() {
 }
 
 Future<String> processRequest(HttpRequest httpRequest) async {
-  String query = httpRequest.uri.queryParameters['query'].toString();
   var timer = Stopwatch();
   timer.start();
-  var postingList =
-      await CustomDatabaseManager.instance.fetchPostingList(query);
+
+  var query = httpRequest.uri.queryParameters['query'].toString();
+  var terms = query.split(' ');
+  print(terms);
+
+  // The first term is always a word
+  var result = await CustomDatabaseManager.instance.fetchPostingList(terms[0]);
+  if (terms.length > 1) {
+    var right = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
+    result = Utils.notOf(result, right);
+  }
+  // if (terms.length > 1) {
+  //   var res2 = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
+  // }
+  // var result = await processQuery(firstTermResult, terms.sublist(1) ?? []);
+
+  //TODO: Rank
+
   timer.stop();
-  return {
+  return jsonEncode({
     'query': query,
+    'count': result.length,
     'duration': timer.elapsed,
-    'postingList': postingList,
-  }.toString();
+    'postingList': result,
+  }.toString());
 }
+
+// Future<List> processQuery(
+//     List leftTermPostingList, List<String> rightTerms) async {
+//   if (rightTerms.isEmpty) return leftTermPostingList;
+//   var res =
+//       await CustomDatabaseManager.instance.fetchPostingList(rightTerms.first);
+//   return Utils.andOf(leftTermPostingList, res);
+// }
 
 void startClient() async {
   final client = HttpClient();
+  String query = 'دانشگاه تهران';
   client.getUrl(Uri.http('localhost:3000', '/', {'query': 'تهران'})).then(
     (httpClientRequest) {
       print('[Client]: Connection established!');
@@ -63,8 +89,8 @@ void startClient() async {
         (httpClientResponse) async {
           print(
               '[Client]: Response received from server with code ${httpClientResponse.statusCode}');
-          print('[Client]: Response from server is: ' +
-              (await httpClientResponse.transform(utf8.decoder).join()));
+          // print('[Client]: Response from server is: ' +
+          //     (await httpClientResponse.transform(utf8.decoder).join()));
         },
       );
     },
