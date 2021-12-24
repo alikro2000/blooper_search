@@ -5,9 +5,26 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text('Testing... Check your console for info.'),
+        child: Column(
+          children: const [
+            //Header and Search bar
+
+            //Results text view
+            Text(
+              'Found 2500 results in 3 seconds for the query: Hello World!',
+              style: TextStyle(
+                fontFamily: 'Segoe_UI',
+                fontSize: 18,
+              ),
+            ),
+
+            //Result Cards
+
+            //Pagination
+          ],
+        ),
       ),
     );
   }
