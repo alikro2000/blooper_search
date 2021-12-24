@@ -4,3 +4,5 @@
 
 # Conventional directory for build output.
 build/
+hive_database/
+page_repo/
