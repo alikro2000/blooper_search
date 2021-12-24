@@ -9,10 +9,6 @@ import 'utils.dart';
 void main(List<String> arguments) async {
   await prepareResources();
   startServer();
-
-  Future.delayed(Duration(seconds: 2), () {
-    startClient();
-  });
 }
 
 Future<void> prepareResources() async {
@@ -27,14 +23,11 @@ Future<void> prepareResources() async {
 void startServer() {
   HttpServer.bind('localhost', 3000).then((server) {
     server.sessionTimeout = 10;
-    print('Server socket started & Listening!');
+    print('[Server socket started & Listening]: host=${server.address.host},port=${server.port}');
     server.listen((HttpRequest httpRequest) async {
       var result = await processRequest(httpRequest);
       httpRequest.response.headers.contentType = ContentType.json;
       httpRequest.response.headers.add('Access-Control-Allow-Origin', '*');
-      // httpRequest.response.headers.add('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-      // httpRequest.response.headers.add( 'Access-Control-Allow-Headers', 'Origin, Content-Type');
-      // print(httpRequest.response.headers);
       httpRequest.response.write(result);
       httpRequest.response.close();
     });
@@ -47,26 +40,9 @@ Future<String> processRequest(HttpRequest httpRequest) async {
 
   var query = httpRequest.uri.queryParameters['query'].toString();
   var terms = query.split(' ');
-  print(terms);
+  // print(terms);
 
   var result = await processQuery(terms);
-
-  // var termsPostingLists = []; //List<Map>
-  // The first term is always a word
-  // var result = await CustomDatabaseManager.instance.fetchPostingList(terms[0]);
-  // termsPostingLists.addAll(result);
-
-  // if (terms.length > 1) {
-  //   var right = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
-  //   termsPostingLists.addAll(right);
-  //   result = Utils.notOf(result, right);
-  // }
-  // if (terms.length > 1) {
-  //   var res2 = await CustomDatabaseManager.instance.fetchPostingList(terms[1]);
-  // }
-  // var result = await processQuery(firstTermResult, terms.sublist(1) ?? []);
-
-  //TODO: Rank
 
   timer.stop();
   return jsonEncode({
@@ -75,12 +51,6 @@ Future<String> processRequest(HttpRequest httpRequest) async {
     'duration': timer.elapsed,
     'postingList': result,
   }.toString());
-  // return jsonEncode({
-  //   'query': query,
-  //   'count': result.length,
-  //   'duration': timer.elapsed,
-  //   'postingList': result,
-  // }.toString());
 }
 
 Future<List> processQuery(List terms) async {
@@ -92,7 +62,7 @@ Future<List> processQuery(List terms) async {
   for (int i = 1; i < terms.length; ++i) {
     // if in operators?
     if (terms[i] == 'AND') {
-      print('DOING AND');
+      // print('DOING AND');
       ++i;
       termsPostingList.add(null);
       var second =
@@ -100,7 +70,7 @@ Future<List> processQuery(List terms) async {
       termsPostingList.add(second);
       result = Utils.andOf(result, second.map((e) => e['docID']).toList());
     } else if (terms[i] == 'OR') {
-      print('DOING OR');
+      // print('DOING OR');
       ++i;
       termsPostingList.add(null);
       var second =
@@ -108,7 +78,7 @@ Future<List> processQuery(List terms) async {
       termsPostingList.add(second);
       result = Utils.orOf(result, second.map((e) => e['docID']).toList());
     } else if (terms[i] == 'NOT') {
-      print('DOING NOT');
+      // print('DOING NOT');
       ++i;
       termsPostingList.add(null);
       var second =
@@ -117,8 +87,8 @@ Future<List> processQuery(List terms) async {
       result = Utils.notOf(result, second.map((e) => e['docID']).toList());
     } else {
       // if not in operators
-      print('DOING ELSE');
-      print(terms[i]);
+      // print('DOING ELSE');
+      // print(terms[i]);
       var second =
           await CustomDatabaseManager.instance.fetchPostingList(terms[i]);
       termsPostingList.add(second);
@@ -149,8 +119,6 @@ Future<List> processQuery(List terms) async {
             'score': docScores[e],
           })
       .toList();
-
-  // return result;
 }
 
 int calculateScore(Map postingListItem) {
@@ -160,7 +128,6 @@ int calculateScore(Map postingListItem) {
 
 void startClient() async {
   final client = HttpClient();
-  String query = 'دانشگاه تهران';
   client.getUrl(Uri.http('localhost:3000', '/', {'query': 'تهران'})).then(
     (httpClientRequest) {
       print('[Client]: Connection established!');
@@ -168,8 +135,6 @@ void startClient() async {
         (httpClientResponse) async {
           print(
               '[Client]: Response received from server with code ${httpClientResponse.statusCode}');
-          // print('[Client]: Response from server is: ' +
-          //     (await httpClientResponse.transform(utf8.decoder).join()));
         },
       );
     },
