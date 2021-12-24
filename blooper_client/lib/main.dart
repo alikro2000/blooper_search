@@ -11,7 +11,7 @@ void main() async {
           .call('دانشگاه NOT تهران NOT یزد NOT یا NOT و'))
       .fold(
     (l) => print(l),
-    (r) => print(r),
+    (r) => print(r.query),
   );
 
   runApp(const MyApp());

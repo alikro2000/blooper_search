@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:blooper_client/domain/entities/posting_list_item_entity.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,18 +22,19 @@ class RemoteQueryRepositoryImpl extends RemoteQueryRepository {
       print('nay... :(');
     }
     client.close();
+    var result = jsonDecode(response.body);
     return QueryResultEntity(
-      query: 'query',
-      count: 0,
-      duration: 0,
-      postingList: [
-        PostingListItemEntity(
-          docID: 0,
-          score: 0,
-          snippet: '',
-          url: '',
-        )
-      ],
+      query: result['query'],
+      count: result['count'],
+      duration: result['duration'],
+      postingList: (result['postingList'] as List)
+          .map((e) => PostingListItemEntity(
+                docID: e['docID'],
+                score: e['score'],
+                url: e['url'],
+                snippet: e['snippet'],
+              ))
+          .toList(),
     );
   }
 }
