@@ -4,9 +4,14 @@ import 'package:hive/hive.dart';
 import 'package:crypto/crypto.dart' as crypto;
 
 class Indexer {
+  late int _wordsCount;
+
   Indexer(String dataBasePath) {
+    _wordsCount = 0;
     Hive.init(dataBasePath);
   }
+
+  int getWordsCount() => _wordsCount;
 
   Future<void> index(int docID, String content, String type) async {
     List<String> processedWords = [];
@@ -15,11 +20,18 @@ class Indexer {
         continue;
       }
       String wordHash = crypto.md5.convert(utf8.encode(word)).toString();
-      (await Hive.openBox(wordHash)).put(docID, {
+      var box = await Hive.openBox(wordHash);
+      await box.put(docID, {
         'freq': countFrequency(content, word),
         'type': type,
       });
+      await box.close();
+      ++_wordsCount;
       processedWords.add(word);
+      await (await Hive.openBox('processedWords')).put(
+        wordHash = crypto.md5.convert(utf8.encode(word)).toString(),
+        word,
+      );
     }
   }
 

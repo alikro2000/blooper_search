@@ -14,3 +14,6 @@ dev_dependencies:
   lints: ^1.0.0
 dependencies: 
   hive: ^2.0.5
+  html: ^0.15.0
+  http: ^0.13.4
+  xml: ^5.3.1

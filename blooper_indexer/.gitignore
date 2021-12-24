@@ -6,3 +6,6 @@
 build/
 hive_database/
 dataset/
+dataset_more/
+page_repo/
+pWords.json
