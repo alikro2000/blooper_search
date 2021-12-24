@@ -1,8 +1,10 @@
+import 'package:blooper_client/domain/entities/posting_list_item_entity.dart';
+
 class QueryResultEntity {
   String query;
   int count;
   var duration;
-  List<Map> postingList;
+  List<PostingListItemEntity> postingList;
 
   QueryResultEntity({
     required this.query,
