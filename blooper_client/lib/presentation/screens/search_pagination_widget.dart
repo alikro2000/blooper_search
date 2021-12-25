@@ -19,29 +19,33 @@ class SearchPaginationWidget extends StatelessWidget {
             }
             int pagesCount = GetIt.instance<PaginationCubit>().getPagesCount();
             int currentPage =
-                GetIt.instance<PaginationCubit>().getCurrentPage();
+                GetIt.instance<PaginationCubit>().getCurrentPage() + 1;
+            List<Widget> numbersWidgets = [];
+            numbersWidgets.add(const PaginationListItem(indice: 1));
+            bool leftDotsFlag = false;
+            for (int i = 2; i <= currentPage; ++i) {
+              if (i >= currentPage - 3) {
+                numbersWidgets.add(PaginationListItem(indice: i));
+              } else if (!leftDotsFlag) {
+                numbersWidgets.add(const Text('...'));
+                leftDotsFlag = true;
+              }
+            }
+            bool rightDotsFlag = false;
+            for (int i = currentPage + 1; i < pagesCount; ++i) {
+              if (i <= currentPage + 3) {
+                numbersWidgets.add(PaginationListItem(indice: i));
+              } else if (!rightDotsFlag) {
+                numbersWidgets.add(const Text('...'));
+                rightDotsFlag = true;
+              }
+            }
+            numbersWidgets.add(PaginationListItem(indice: pagesCount));
+
             return Wrap(
               alignment: WrapAlignment.center,
               // mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(pagesCount, (index) => index + 1)
-                  .map((e) => InkWell(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Text(
-                            '$e',
-                            style: TextStyle(
-                              color: Colors.blue.shade700,
-                              decoration: e == currentPage + 1
-                                  ? TextDecoration.underline
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        onTap: () =>
-                            GetIt.instance<PaginationCubit>().setPage(e - 1),
-                        hoverColor: Colors.white.withOpacity(0),
-                      ))
-                  .toList(),
+              children: numbersWidgets,
             );
           }),
       // child: ListView.separated(
@@ -50,6 +54,35 @@ class SearchPaginationWidget extends StatelessWidget {
       //   itemBuilder: (context, index) => Center(child: Text('$index')),
       //   separatorBuilder: (context, index) => const SizedBox(width: 10),
       // ),
+    );
+  }
+}
+
+class PaginationListItem extends StatelessWidget {
+  final int indice;
+
+  const PaginationListItem({
+    Key? key,
+    required this.indice,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    int currentPage = GetIt.instance<PaginationCubit>().getCurrentPage();
+    return InkWell(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+        child: Text(
+          '$indice',
+          style: TextStyle(
+            color: Colors.blue.shade700,
+            decoration:
+                indice == currentPage + 1 ? TextDecoration.underline : null,
+          ),
+        ),
+      ),
+      onTap: () => GetIt.instance<PaginationCubit>().setPage(indice - 1),
+      hoverColor: Colors.white.withOpacity(0),
     );
   }
 }
