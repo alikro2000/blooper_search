@@ -1,5 +1,7 @@
+import 'package:blooper_client/domain/entities/posting_list_item_entity.dart';
 import 'package:blooper_client/presentation/bloc/get_query_cubit.dart';
 import 'package:blooper_client/presentation/bloc/get_query_state.dart';
+import 'package:blooper_client/presentation/bloc/pagination_cubit.dart';
 import 'package:blooper_client/presentation/screens/search_result_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,15 +21,25 @@ class SearchResultList extends StatelessWidget {
           } else if (state is GetQueryStateLoading) {
             return const CircularProgressIndicator();
           } else if (state is GetQueryStateLoaded) {
-            return Expanded(
-              child: Column(
-                  children: state.result.postingList
-                      .map((e) => SearchResultListItem(
+            //Init pagination
+            GetIt.instance<PaginationCubit>().init(state.result.postingList);
+            return BlocBuilder(
+              bloc: GetIt.instance<PaginationCubit>(),
+              builder: (context, List<PostingListItemEntity> paginationState) =>
+                  Expanded(
+                child: Column(
+                  children: paginationState
+                      .map(
+                        (e) => SearchResultListItem(
                           title: e.title,
                           url: e.url,
                           snippet: e.snippet,
-                          score: e.score))
-                      .toList()),
+                          score: e.score,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
             );
           } else if (state is GetQueryStateError) {
             return Text(

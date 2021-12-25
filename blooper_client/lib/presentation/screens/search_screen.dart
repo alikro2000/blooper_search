@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'package:blooper_client/presentation/bloc/get_query_cubit.dart';
+import 'package:blooper_client/presentation/bloc/pagination_cubit.dart';
 import 'package:blooper_client/presentation/screens/search_header_widget.dart';
 import 'package:blooper_client/presentation/screens/search_info_widget.dart';
+import 'package:blooper_client/presentation/screens/search_pagination_widget.dart';
 import 'package:blooper_client/presentation/screens/search_result_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,8 +20,11 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.instance<GetQueryCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => GetIt.instance<GetQueryCubit>()),
+        BlocProvider(create: (context) => GetIt.instance<PaginationCubit>()),
+      ],
       child: Scaffold(
         body: SingleChildScrollView(
           child: Column(
@@ -27,14 +32,18 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               //Header and Search bar
               const SearchHeader(),
-        
+
               //Results text view
               const SearchInfo(),
-        
+
+              //Pagination
+              SearchPaginationWidget(),
+
               //Result Cards
               const SearchResultList(),
-        
-              //TODO: Pagination
+
+              //Pagination
+              SearchPaginationWidget(),
             ],
           ),
         ),
