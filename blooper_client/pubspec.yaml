@@ -17,6 +17,9 @@ dependencies:
   dartz: ^0.10.1
   http: ^0.13.4
   html: ^0.15.0
+  bloc: ^8.0.1
+  flutter_bloc: ^8.0.0
+  equatable: ^2.0.3
 
 dev_dependencies:
   flutter_test:
@@ -27,6 +30,22 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
   uses-material-design: true
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/
   #   - images/a_dot_ham.jpeg
+
+  fonts:
+    - family: IRANSans
+      fonts:
+        - asset: 'assets/fonts/IRANSans.ttf'
+    - family: Segoe_UI
+      fonts:
+        - asset: 'assets/fonts/Segoe UI.ttf'
+          style: normal
+        - asset: 'assets/fonts/Segoe UI Italic.ttf'
+          style: italic
+        - asset: 'assets/fonts/Segoe UI Bold.ttf'
+          weight: 700
+        - asset: 'assets/fonts/Segoe UI Bold Italic.ttf'
+          style: italic
+          weight: 700

@@ -14,7 +14,7 @@ void main(List<String> arguments) async {
   String datasetPath = './dataset';
   var indexer = Indexer(dbPath);
 
-  // List<HtmlDocument> htmlDocuments = await startIndexing(indexer, datasetPath);
+  List<HtmlDocument> htmlDocuments = await startIndexing(indexer, datasetPath);
 
   //Test indexed words
   // saveWordsListAsJson();
@@ -134,6 +134,7 @@ Future<void> generatePageRepository(
     await box.put(htDoc.docID, {
       'url': htDoc.url,
       'htmlContent': htDoc.htmlContent,
+      'title': DocumentProcessor.getTitle(htDoc),
       'snippet': DocumentProcessor.getSnippet(htDoc),
     });
   }

@@ -52,12 +52,12 @@ Future<String> processRequest(HttpRequest httpRequest) async {
   var result = await processQuery(terms);
 
   timer.stop();
-  return jsonEncode({
+  return JsonEncoder().convert({
     'query': query,
     'count': result.length,
-    'duration': timer.elapsed,
+    'duration': timer.elapsed.toString(),
     'postingList': result,
-  }.toString());
+  });
 }
 
 Future<List> processQuery(List terms) async {
@@ -134,6 +134,7 @@ Future<List> processQuery(List terms) async {
       'docID': docID,
       'score': docScores[docID],
       'url': page_results[i]['url'],
+      'title': page_results[i]['title'],
       'snippet': page_results[i]['snippet'],
       // 'htmlContent': page_results[i]['htmlContent'],
     });

@@ -32,6 +32,7 @@ class RemoteQueryRepositoryImpl extends RemoteQueryRepository {
                 docID: e['docID'],
                 score: e['score'],
                 url: e['url'],
+                title: e['title'],
                 snippet: e['snippet'],
               ))
           .toList(),

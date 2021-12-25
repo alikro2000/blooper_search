@@ -20,6 +20,7 @@ class PageRepositoryManager {
         return {
           'url': row['url'],
           'htmlContent': row['htmlContent'],
+          'title': row['title'],
           'snippet': row['snippet'],
         };
       });
