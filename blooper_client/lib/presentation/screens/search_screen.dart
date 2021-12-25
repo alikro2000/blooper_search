@@ -3,6 +3,7 @@
 import 'package:blooper_client/presentation/bloc/get_query_cubit.dart';
 import 'package:blooper_client/presentation/screens/search_header_widget.dart';
 import 'package:blooper_client/presentation/screens/search_info_widget.dart';
+import 'package:blooper_client/presentation/screens/search_result_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -20,23 +21,19 @@ class _SearchScreenState extends State<SearchScreen> {
     return BlocProvider(
       create: (context) => GetIt.instance<GetQueryCubit>(),
       child: Scaffold(
-        body: Center(
+        body: SingleChildScrollView(
           child: Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //Header and Search bar
               const SearchHeader(),
-
+        
               //Results text view
               const SearchInfo(),
-
+        
               //Result Cards
-              const SingleChildScrollView(
-                child: Text(
-                  'Search Results:\n...',
-                ),
-              ),
-
+              const SearchResultList(),
+        
               //TODO: Pagination
             ],
           ),
