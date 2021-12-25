@@ -1,5 +1,6 @@
 import 'package:blooper_client/presentation/bloc/get_query_cubit.dart';
 import 'package:blooper_client/presentation/bloc/get_query_state.dart';
+import 'package:blooper_client/presentation/screens/search_result_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -21,7 +22,11 @@ class SearchResultList extends StatelessWidget {
             return Expanded(
               child: Column(
                   children: state.result.postingList
-                      .map((e) => Text('${e.docID}, ${e.score}, ${e.title}'))
+                      .map((e) => SearchResultListItem(
+                          title: e.title,
+                          url: e.url,
+                          snippet: e.snippet,
+                          score: e.score))
                       .toList()),
             );
           } else if (state is GetQueryStateError) {
