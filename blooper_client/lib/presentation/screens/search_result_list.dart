@@ -26,20 +26,18 @@ class SearchResultList extends StatelessWidget {
             return BlocBuilder(
               bloc: GetIt.instance<PaginationCubit>(),
               builder: (context, List<PostingListItemEntity> paginationState) =>
-                  Expanded(
-                child: Column(
-                  children: paginationState
-                      .map(
-                        (e) => SearchResultListItem(
-                          title: e.title,
-                          url: e.url,
-                          snippet: e.snippet,
-                          score: e.score,
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
+                  Column(
+                    children: paginationState
+                        .map(
+                          (e) => SearchResultListItem(
+                            title: e.title,
+                            url: e.url,
+                            snippet: e.snippet,
+                            score: e.score,
+                          ),
+                        )
+                        .toList(),
+                  ),
             );
           } else if (state is GetQueryStateError) {
             return Text(
