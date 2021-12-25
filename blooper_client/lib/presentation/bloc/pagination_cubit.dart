@@ -22,7 +22,7 @@ class PaginationCubit extends Cubit<List<PostingListItemEntity>> {
         )
         .toList());
     _pagesCount = postingListItems.length ~/ 10;
-    _pagesCount += (_pagesCount % 10 >= 10 ? 1 : 0);
+    _pagesCount += (postingListItems.length % 10 == 0 ? 0 : 1);
   }
 
   void setPage(int pageNumber) {

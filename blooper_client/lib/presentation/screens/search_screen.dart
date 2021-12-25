@@ -37,13 +37,17 @@ class _SearchScreenState extends State<SearchScreen> {
               const SearchInfo(),
 
               //Pagination
-              SearchPaginationWidget(),
+              const SearchPaginationWidget(),
 
               //Result Cards
               const SearchResultList(),
 
               //Pagination
-              SearchPaginationWidget(),
+              const SearchPaginationWidget(),
+
+              Container(
+                margin: const EdgeInsets.only(bottom: 50),
+              ),
             ],
           ),
         ),
