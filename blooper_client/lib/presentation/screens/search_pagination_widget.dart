@@ -14,7 +14,8 @@ class SearchPaginationWidget extends StatelessWidget {
           bloc: GetIt.instance<PaginationCubit>(),
           builder: (context, List state) {
             if (state.isEmpty) {
-              return const Text('Waiting for Query...');
+              return Container();
+              // return const Text('Waiting for Query...');
             }
             int pagesCount = GetIt.instance<PaginationCubit>().getPagesCount();
             int currentPage =

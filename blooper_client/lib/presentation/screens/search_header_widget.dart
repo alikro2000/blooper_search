@@ -2,6 +2,8 @@ import 'package:blooper_client/presentation/bloc/get_query_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import 'dart:html' as html;
+
 class SearchHeader extends StatelessWidget {
   const SearchHeader({Key? key}) : super(key: key);
 
@@ -12,19 +14,31 @@ class SearchHeader extends StatelessWidget {
       child: Row(
         children: [
           //GitHub clickable logo
-          Placeholder(
-            fallbackWidth: 50,
-            fallbackHeight: 50,
-            color: Colors.grey.shade800,
+          InkWell(
+            child: Image.asset('assets/images/github_logo_01.png', width: 70),
+            hoverColor: Colors.white.withOpacity(0),
+            // focusColor: Colors.white.withOpacity(0),
+            highlightColor: Colors.white.withOpacity(0),
+            onTap: () => html.window.open(
+              'https://github.com/alikro2000/blooper_search',
+              'blooper_search',
+            ),
           ),
+
           const SizedBox(width: 20),
+
           //Blooper Search Icon
-          Placeholder(
-            fallbackWidth: 250,
-            fallbackHeight: 50,
-            color: Colors.grey.shade800,
+          const Text(
+            'Bl👀per Search',
+            style: TextStyle(
+                fontFamily: 'Segoe_UI',
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w700,
+                fontSize: 32),
           ),
+
           const SizedBox(width: 20),
+
           //Serach Bar
           Expanded(
             child: TextField(
