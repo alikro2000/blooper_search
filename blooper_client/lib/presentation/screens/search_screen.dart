@@ -18,6 +18,15 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    _scrollController = ScrollController();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -26,29 +35,37 @@ class _SearchScreenState extends State<SearchScreen> {
         BlocProvider(create: (context) => GetIt.instance<PaginationCubit>()),
       ],
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //Header and Search bar
-              const SearchHeader(),
-
-              //Results text view
-              const SearchInfo(),
-
-              //Pagination
-              const SearchPaginationWidget(),
-
-              //Result Cards
-              const SearchResultList(),
-
-              //Pagination
-              const SearchPaginationWidget(),
-
-              Container(
-                margin: const EdgeInsets.only(bottom: 50),
-              ),
-            ],
+        body: Scrollbar(
+          controller: _scrollController,
+          isAlwaysShown: true,
+          // interactive: false,
+          thickness: 12,
+          showTrackOnHover: true,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //Header and Search bar
+                const SearchHeader(),
+        
+                //Results text view
+                const SearchInfo(),
+        
+                //Pagination
+                const SearchPaginationWidget(),
+        
+                //Result Cards
+                const SearchResultList(),
+        
+                //Pagination
+                const SearchPaginationWidget(),
+        
+                Container(
+                  margin: const EdgeInsets.only(bottom: 50),
+                ),
+              ],
+            ),
           ),
         ),
       ),

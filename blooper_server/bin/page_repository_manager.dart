@@ -29,7 +29,6 @@ class PageRepositoryManager {
   }
 
   Map<String, dynamic> getPageInfo(int docID) {
-    print(_pageRepo.keys.contains(docID));
     return _pageRepo[docID];
   }
 }
